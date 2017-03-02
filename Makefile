@@ -115,7 +115,7 @@ CFLAGS+= $(COSFLAGS) -ffast-math \
 	-Ioutside/commonmark/src \
 	-Ioutside/commonmark/build/src \
 	-Ioutside/scrypt \
-	-Ioutside/softfloat-3/source/include \
+	-Ioutside/softfloat-3c/source/include \
 	-Ioutside/murmur3 \
 	$(DEFINES) \
 	$(MDEFINES)
@@ -383,7 +383,7 @@ LIBCOMMONMARK=outside/commonmark/build/src/libcmark.a
 
 LIBSCRYPT=outside/scrypt/scrypt.a
 
-LIBSOFTFLOAT=outside/softfloat-3/build/Linux-386-GCC/softfloat.a
+LIBSOFTFLOAT=outside/softfloat-3c/build/Linux-386-GCC/softfloat.a
 
 TAGS=\
        .tags \
@@ -418,7 +418,7 @@ $(LIBSCRYPT):
 	$(MAKE) -C outside/scrypt MDEFINES="$(MDEFINES)"
 
 $(LIBSOFTFLOAT):
-	$(MAKE) -C outside/softfloat-3/build/Linux-386-GCC
+	$(MAKE) -C outside/softfloat-3c/build/Linux-386-GCC
 
 $(V_OFILES): include/vere/vere.h
 
@@ -474,6 +474,6 @@ distclean: clean
 	$(MAKE) -C outside/ed25519 clean
 	$(MAKE) -C outside/anachronism clean
 	$(MAKE) -C outside/scrypt clean
-	$(MAKE) -C outside/softfloat-3/build/Linux-386-GCC clean
+	$(MAKE) -C outside/softfloat-3c/build/Linux-386-GCC clean
 
 .PHONY: clean debbuild debinstalldistclean etags osxpackage tags
