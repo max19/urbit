@@ -256,7 +256,7 @@ _unix_write_file_soft_go:
 }
 
 static void
-_unix_watch_dir(u3_udir* dir_u, u3_udir* par_u, c3_c* pax_c);
+_unix_watch_dir(u3_pier *pir_u, u3_udir* dir_u, u3_udir* par_u, c3_c* pax_c);
 static void
 _unix_watch_file(u3_pier *pir_u, u3_ufil* fil_u, u3_udir* par_u, c3_c* pax_c);
 
@@ -353,7 +353,7 @@ _unix_scan_mount_point(u3_pier *pir_u, u3_umon* mon_u)
         }
         else {
           u3_udir* dir_u = c3_malloc(sizeof(u3_udir));
-          _unix_watch_dir(dir_u, &mon_u->dir_u, pax_c);
+          _unix_watch_dir(pir_u, dir_u, &mon_u->dir_u, pax_c);
         }
       }
       else {
@@ -613,7 +613,6 @@ _unix_watch_file(u3_pier *pir_u, u3_ufil* fil_u, u3_udir* par_u, c3_c* pax_c)
     c3_assert(0);
   }
 
-  fil_u->was_u.data = pir_u;
   ret_w = uv_fs_event_start(&fil_u->was_u, _unix_fs_event_cb, pax_c, 0);
   if ( 0 != ret_w ){
     uL(fprintf(uH, "file event start %s: %s\n", fil_u->pax_c, uv_strerror(ret_w)));
@@ -624,7 +623,7 @@ _unix_watch_file(u3_pier *pir_u, u3_ufil* fil_u, u3_udir* par_u, c3_c* pax_c)
 /* _unix_watch_dir(): initialize directory
 */
 static void
-_unix_watch_dir(u3_udir* dir_u, u3_udir* par_u, c3_c* pax_c)
+_unix_watch_dir(u3_pier *pir_u, u3_udir* dir_u, u3_udir* par_u, c3_c* pax_c)
 {
   // initialize dir_u
 
@@ -644,6 +643,7 @@ _unix_watch_dir(u3_udir* dir_u, u3_udir* par_u, c3_c* pax_c)
   // note that we're doing something tricky here
   // see comment in _unix_fs_event_cb
 
+  dir_u->was_u.data = pir_u;
   c3_w ret_w = uv_fs_event_init(u3L, &dir_u->was_u);
   if (0 != ret_w){
     uL(fprintf(uH, "directory event init: %s\n", uv_strerror(ret_w)));
@@ -660,7 +660,7 @@ _unix_watch_dir(u3_udir* dir_u, u3_udir* par_u, c3_c* pax_c)
 /* _unix_create_dir(): create unix directory and watch it
 */
 static void
-_unix_create_dir(u3_udir* dir_u, u3_udir* par_u, u3_noun nam)
+_unix_create_dir(u3_pier* pir_u, u3_udir* dir_u, u3_udir* par_u, u3_noun nam)
 {
   c3_c* nam_c = u3r_string(nam);
   c3_w  nam_w = strlen(nam_c);
@@ -676,7 +676,7 @@ _unix_create_dir(u3_udir* dir_u, u3_udir* par_u, u3_noun nam)
   u3z(nam);
 
   _unix_mkdir(pax_c);
-  _unix_watch_dir(dir_u, par_u, pax_c);
+  _unix_watch_dir(pir_u, dir_u, par_u, pax_c);
 }
 
 static u3_noun _unix_update_node(u3_pier *pir_u, u3_unod* nod_u);
@@ -914,7 +914,7 @@ _unix_update_dir(u3_pier *pir_u, u3_udir* dir_u)
           }
           else {
             u3_udir* dis_u = c3_malloc(sizeof(u3_udir));
-            _unix_watch_dir(dis_u, dir_u, pax_c);
+            _unix_watch_dir(pir_u, dis_u, dir_u, pax_c);
             can = u3kb_weld(_unix_update_dir(pir_u, dis_u), can); // XXX unnecessary?
           }
         }
@@ -1223,7 +1223,7 @@ _unix_sync_change(u3_pier *pir_u, u3_udir* dir_u, u3_noun pax, u3_noun mim)
 
       if ( !nod_u ) {
         nod_u = c3_malloc(sizeof(u3_udir));
-        _unix_create_dir((u3_udir*) nod_u, dir_u, u3k(i_pax));
+        _unix_create_dir(pir_u, (u3_udir*) nod_u, dir_u, u3k(i_pax));
       }
 
       if ( c3n == nod_u->dir ) {
